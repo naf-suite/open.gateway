@@ -1,0 +1,38 @@
+
+spring:
+  profiles:
+    active: dev
+
+---
+spring:
+  profiles: default
+  redis:
+    host: 192.168.1.151
+    port: 6379
+
+---
+spring:
+  profiles: dev
+server.port: 8080
+open:
+  gateway:
+    auth-base-url: http://localhost:5080
+    use-redis: false
+    secret:
+      wx4b4385cff773f3f9: ec8bcde9504c0ea1701988c5e741b865
+
+logging.level.cloud.weixin.open.gateway.*: DEBUG      
+      
+---
+spring:
+  profiles: prod
+  redis:
+    host: 10.163.150.30
+server.port: 8002
+open:
+  gateway:
+    auth-base-url: http://www.jilinjobswx.cn
+    use-redis: true
+    secret:
+      wx4b4385cff773f3f9: ec8bcde9504c0ea1701988c5e741b865
+      
