@@ -34,7 +34,7 @@ public class Application {
 	}
 	
 	@PostMapping("/auth_msg")
-	public Mono<String> auth_msg(@RequestBody String xmlData) {
+	public @ResponseBody Mono<String> auth_msg(@RequestBody String xmlData) {
 		log.debug("receive auth_msg: \n{}", xmlData);
 		return Mono.just("success");
 	}
