@@ -1,23 +1,26 @@
 package cloud.weixin.open.gateway.service;
 
-import java.util.Map.Entry;
+import javax.xml.bind.JAXBException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import cloud.weixin.open.gateway.Configure;
+import cloud.weixin.open.gateway.aes.AesException;
+import cloud.weixin.open.gateway.aes.WXBizMsgCrypt;
 import cloud.weixin.open.gateway.data.AccessToken;
 import cloud.weixin.open.gateway.data.Auth2Token;
+import cloud.weixin.open.gateway.data.EncryptMsg;
 import cloud.weixin.open.gateway.data.JsapiTicket;
-import io.netty.util.internal.StringUtil;
+import cloud.weixin.open.gateway.data.VerifyTicket;
 
 @Service
 public class TokenServiceImpl implements TokenService{
 
-	private Log log = LogFactory.getLog(getClass());
+	private Logger log = LoggerFactory.getLogger(getClass());
 	
     //@Autowired
     private Configure config;
@@ -40,13 +43,13 @@ public class TokenServiceImpl implements TokenService{
     	//Assert.notNull(appid, "appid is null");
     	Assert.isTrue(appid != null || orginfo != null, "appid is null");
 
-    	if(appid == null)
-    		appid = config.getAppInfo().get(orginfo);
-    	else{
-    		if(!config.getSecret().containsKey(appid) && config.getAppInfo().containsKey(appid)){
-    			appid = config.getAppInfo().get(appid);
-    		}
-    	}
+//    	if(appid == null)
+//    		appid = config.getAppInfo().get(orginfo);
+//    	else{
+//    		if(!config.getSecret().containsKey(appid) && config.getAppInfo().containsKey(appid)){
+//    			appid = config.getAppInfo().get(appid);
+//    		}
+//    	}
 
     	String val;
     	if(!force){
@@ -64,14 +67,14 @@ public class TokenServiceImpl implements TokenService{
     String reqToken(String appid){
     	log.info("request token for: " + appid);
     	
-    	String secret = config.getSecret().get(appid);
-    	Assert.notNull(secret, "can't find secret configure for appid:" + appid);
-    	
-    	AccessToken token = getAccessToken(appid, secret);
-    	if(token != null && StringUtil.isNullOrEmpty(token.getErrmsg())){
-        	setToken(appid, token.getAccess_token(), token.getExpires_in() - 300);
-        	return token.getAccess_token();
-    	}
+//    	String secret = config.getSecret().get(appid);
+//    	Assert.notNull(secret, "can't find secret configure for appid:" + appid);
+//    	
+//    	AccessToken token = getAccessToken(appid, secret);
+//    	if(token != null && StringUtil.isNullOrEmpty(token.getErrmsg())){
+//        	setToken(appid, token.getAccess_token(), token.getExpires_in() - 300);
+//        	return token.getAccess_token();
+//    	}
     	return null;
     }
     
@@ -93,12 +96,12 @@ public class TokenServiceImpl implements TokenService{
 			return (ticket?"wxticket:":"wxtoken:") + appid;
 		}
 		//convert appid to orginfo
-		for(Entry<String, String> entry : config.getAppInfo().entrySet()){
-			if(entry.getValue().equals(appid)){
-				appid = entry.getKey(); 
-				break;
-			}
-		}
+//		for(Entry<String, String> entry : config.getAppInfo().entrySet()){
+//			if(entry.getValue().equals(appid)){
+//				appid = entry.getKey(); 
+//				break;
+//			}
+//		}
 		return appid + (ticket?"ticket":"");
 	}
 	
@@ -106,12 +109,12 @@ public class TokenServiceImpl implements TokenService{
 	public String fetchTicket(String appid, String orginfo) {
     	Assert.isTrue(appid != null || orginfo != null, "appid is null");
 
-    	if(appid == null)
-    		appid = config.getAppInfo().get(orginfo);
-    	
-    	//TODO: 针对吉林移动交接，所有使用吉林移动的jssdk调用，切换为和生活的. dyg@2017.8.28
-    	if("wxb4276a822d76aca1".equals(appid))
-    		appid = "wx1be04c15feb25455";
+//    	if(appid == null)
+//    		appid = config.getAppInfo().get(orginfo);
+//    	
+//    	//TODO: 针对吉林移动交接，所有使用吉林移动的jssdk调用，切换为和生活的. dyg@2017.8.28
+//    	if("wxb4276a822d76aca1".equals(appid))
+//    		appid = "wx1be04c15feb25455";
 
     	String val = getTicket(appid);
     	if(val != null)
@@ -146,36 +149,68 @@ public class TokenServiceImpl implements TokenService{
 		return this.cache.getCache(key);
 	}
 	
-
     @Override
 	public String fetchOpenid(String appid, String code){
     	Assert.notNull(appid, "appid is null");
     	Assert.notNull(code, "code is null");
 
-    	String secret = config.getSecret().get(appid);
-    	Assert.notNull(secret, "can't find secret configure for appid:" + appid);
-    	
-    	Auth2Token token = getAuth2Token(appid, secret, code);
-    	if(token != null && StringUtil.isNullOrEmpty(token.getErrmsg())){
-    		if(token.getErrcode() != 0){
-    			log.error(String.format("fetch openid by code fail: %d - %s", token.getErrcode(), token.getErrmsg()));
-    			return null;
-    		}
-        	return token.getOpenid();
-    	}
+//    	String secret = config.getSecret().get(appid);
+//    	Assert.notNull(secret, "can't find secret configure for appid:" + appid);
+//    	
+//    	Auth2Token token = getAuth2Token(appid, secret, code);
+//    	if(token != null && StringUtil.isNullOrEmpty(token.getErrmsg())){
+//    		if(token.getErrcode() != 0){
+//    			log.error(String.format("fetch openid by code fail: %d - %s", token.getErrcode(), token.getErrmsg()));
+//    			return null;
+//    		}
+//        	return token.getOpenid();
+//    	}
 
     	return null;
 	}
     
-    private AccessToken getAccessToken(String appid, String secret) {
+	@Override
+	public void saveVerifyTicket(String xmlData) {
+		try {
+			log.debug("receive component_verify_ticket: \n{}", xmlData);
+			EncryptMsg msg = EncryptMsg.fromXml(xmlData);
+			String appId = msg.getAppId();
+			String key = config.getAppKey(appId);
+			String token = config.getAppKey(appId);
+			WXBizMsgCrypt pc = new WXBizMsgCrypt(token, key, appId);
+			String text = pc.decrypt(msg.getEncrypt());
+			log.debug("decrypt component_verify_ticket result: \n{}", text);
+			VerifyTicket ticket = VerifyTicket.fromXml(text);
+			log.debug("save component_verify_ticket: {} - {}", appId, ticket.getTicket());
+			this.cache.setCache(verifyTicketKey(appId), ticket.getTicket());
+		} catch (AesException e) {
+			// TODO Auto-generated catch block
+			log.warn("解密component_verify_ticket失败", e);
+		} catch (JAXBException e) {
+			log.warn("解析component_verify_ticket失败", e);
+		}
+			
+	}
+
+	@Override
+	public String fetchVerifyTicket(String appid) {
+		return this.cache.getCache(verifyTicketKey(appid));
+	}
+
+	String verifyTicketKey(String appid){
+		return "weixin:open:" + appid + ":verify_ticket";
+	}
+
+	AccessToken getAccessToken(String appid, String secret) {
     	return null;
     }
     
-	private JsapiTicket getJsapiTicket(String token) {
+	JsapiTicket getJsapiTicket(String token) {
 		return null;
 	}
 	
-	private Auth2Token getAuth2Token(String appid, String secret, String code) {
+	Auth2Token getAuth2Token(String appid, String secret, String code) {
 		return null;
 	}
+
 }

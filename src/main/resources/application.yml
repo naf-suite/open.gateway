@@ -19,7 +19,9 @@ open:
     auth-base-url: http://localhost:5080
     use-redis: false
     secret:
-      wx4b4385cff773f3f9: ec8bcde9504c0ea1701988c5e741b865
+      wx4b4385cff773f3f9: 
+        secret: ec8bcde9504c0ea1701988c5e741b865
+        aeskey: BojYAIsgTGPFqgtphrqR4j2Lmz1IamBcPJgWGHvwKqw
 
 logging.level.cloud.weixin.open.gateway.*: DEBUG      
       
@@ -33,6 +35,9 @@ open:
   gateway:
     auth-base-url: http://www.jilinjobswx.cn
     use-redis: true
-    secret:
-      wx4b4385cff773f3f9: ec8bcde9504c0ea1701988c5e741b865
+    apps:
+      wx4b4385cff773f3f9: 
+        secret: ec8bcde9504c0ea1701988c5e741b865
+        key: BojYAIsgTGPFqgtphrqR4j2Lmz1IamBcPJgWGHvwKqw
+        token: huiantongxin123123
       

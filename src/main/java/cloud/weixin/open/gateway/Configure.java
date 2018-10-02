@@ -9,8 +9,7 @@ public class Configure {
 	
     private boolean useRedis;
     private boolean newMode = true;
-    private Map<String,String> secret;
-    private Map<String,String> appInfo;
+    private Map<String,AppInfo> apps;
     private String authBaseUrl;
 
 	public boolean isUseRedis() {
@@ -21,20 +20,12 @@ public class Configure {
 		this.useRedis = useRedis;
 	}
 
-	public Map<String, String> getSecret() {
-		return secret;
+	public Map<String, AppInfo> getApps() {
+		return apps;
 	}
 
-	public void setSecret(Map<String, String> secret) {
-		this.secret = secret;
-	}
-
-	public Map<String, String> getAppInfo() {
-		return appInfo;
-	}
-
-	public void setAppInfo(Map<String, String> appInfo) {
-		this.appInfo = appInfo;
+	public void setApps(Map<String, AppInfo> apps) {
+		this.apps = apps;
 	}
 
 	public String getAuthBaseUrl() {
@@ -51,6 +42,45 @@ public class Configure {
 
 	public void setNewMode(boolean newMode) {
 		this.newMode = newMode;
+	}
+	
+	public String getAppSecret(String appid) {
+		if(apps != null && apps.containsKey(appid)) {
+			return apps.get(appid).getSecret();
+		}
+		return null;
+	}
+	public String getAppKey(String appid) {
+		if(apps != null && apps.containsKey(appid)) {
+			return apps.get(appid).getSecret();
+		}
+		return null;
+	}
+	
+	public static class AppInfo {
+		private String secret;
+		private String key;
+		private String token;
+		
+		public String getSecret() {
+			return secret;
+		}
+		public void setSecret(String secret) {
+			this.secret = secret;
+		}
+		public String getKey() {
+			return key;
+		}
+		public void setKey(String key) {
+			this.key = key;
+		}
+		public String getToken() {
+			return token;
+		}
+		public void setToken(String token) {
+			this.token = token;
+		}
+		
 	}
 
 }

@@ -4,4 +4,6 @@ public interface TokenService {
 	String fetchToken(String appid, String orginfo, boolean force);
 	String fetchTicket(String appid, String orginfo);
 	String fetchOpenid(String appid, String code);
+	void saveVerifyTicket(String xmlData);
+	String fetchVerifyTicket(String appid);
 }
