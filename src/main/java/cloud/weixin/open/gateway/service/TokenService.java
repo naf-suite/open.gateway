@@ -5,20 +5,29 @@ import javax.xml.bind.JAXBException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import com.alibaba.fastjson.JSONObject;
 
 import cloud.weixin.open.gateway.Configure;
 import cloud.weixin.open.gateway.aes.AesException;
 import cloud.weixin.open.gateway.aes.WXBizMsgCrypt;
-import cloud.weixin.open.gateway.data.AccessToken;
 import cloud.weixin.open.gateway.data.Auth2Token;
+import cloud.weixin.open.gateway.data.ComponentAccessToken;
 import cloud.weixin.open.gateway.data.EncryptMsg;
 import cloud.weixin.open.gateway.data.JsapiTicket;
+import cloud.weixin.open.gateway.data.PreAuthCode;
+import cloud.weixin.open.gateway.data.QueryAuthRes;
+import cloud.weixin.open.gateway.data.QueryAuthRes.Authorization_info;
 import cloud.weixin.open.gateway.data.VerifyTicket;
+import gaf2.core.exception.BusinessError;
+import reactor.core.publisher.Mono;
 
 @Service
-public class TokenServiceImpl implements TokenService{
+public class TokenService {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 	
@@ -28,12 +37,11 @@ public class TokenServiceImpl implements TokenService{
     private CacheService cache;
 
     @Autowired
-    public TokenServiceImpl(Configure config, CacheServiceImpl cache){
+    public TokenService(Configure config, CacheService cache){
     	this.config = config;
     	this.cache = cache;
     }
 
-    @Override
 	public String fetchToken(String appid, String orginfo, boolean force){
 //    	String val = config.getSecret().get(appid);
 //    	if(val == null)
@@ -105,7 +113,6 @@ public class TokenServiceImpl implements TokenService{
 		return appid + (ticket?"ticket":"");
 	}
 	
-	@Override
 	public String fetchTicket(String appid, String orginfo) {
     	Assert.isTrue(appid != null || orginfo != null, "appid is null");
 
@@ -149,7 +156,6 @@ public class TokenServiceImpl implements TokenService{
 		return this.cache.getCache(key);
 	}
 	
-    @Override
 	public String fetchOpenid(String appid, String code){
     	Assert.notNull(appid, "appid is null");
     	Assert.notNull(code, "code is null");
@@ -169,7 +175,6 @@ public class TokenServiceImpl implements TokenService{
     	return null;
 	}
     
-	@Override
 	public void saveVerifyTicket(String xmlData) {
 		try {
 			log.debug("receive component_verify_ticket: \n{}", xmlData);
@@ -192,7 +197,6 @@ public class TokenServiceImpl implements TokenService{
 			
 	}
 
-	@Override
 	public String fetchVerifyTicket(String appid) {
 		return this.cache.getCache(verifyTicketKey(appid));
 	}
@@ -201,10 +205,7 @@ public class TokenServiceImpl implements TokenService{
 		return "weixin:open:" + appid + ":verify_ticket";
 	}
 
-	AccessToken getAccessToken(String appid, String secret) {
-    	return null;
-    }
-    
+
 	JsapiTicket getJsapiTicket(String token) {
 		return null;
 	}

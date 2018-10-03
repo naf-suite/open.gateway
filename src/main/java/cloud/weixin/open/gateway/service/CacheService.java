@@ -13,7 +13,7 @@ import cloud.weixin.open.gateway.Configure;
 import io.netty.util.internal.StringUtil;
 
 @Service
-public class CacheServiceImpl implements CacheService {
+public class CacheService {
 	// inject the actual template
     @Autowired
     private RedisTemplate<String, String> template;
@@ -24,11 +24,10 @@ public class CacheServiceImpl implements CacheService {
     private Configure config;
 
     @Autowired
-    public CacheServiceImpl(Configure config){
+    public CacheService(Configure config){
     	this.config = config;
     }
 
-    @Override
 	public String getCache(String key) {
 		if(config.isUseRedis()){
 			String val = template.opsForValue().get(key);
@@ -45,12 +44,10 @@ public class CacheServiceImpl implements CacheService {
 		}
 	}
 
-    @Override
 	public void setCache(String key, String val) {
     	setCache(key, val, 0, false);
 	}
 
-    @Override
 	public void setCache(String key, String val, long expire, boolean compatible) {
 		if(config.isUseRedis()){
 			if(expire > 0){
