@@ -47,7 +47,7 @@ public class WeixinAPI {
 	            	log.debug("api_component_token return: {}", msg);
 	            	ComponentAccessToken res = JSONObject.parseObject(msg, ComponentAccessToken.class);
 	            	if(res.getErrcode() == 0) return res;
-	            	log.error("api_query_auth fail: {} - {}", res.getErrcode(), res.getErrmsg());
+	            	log.error("api_component_token fail: {} - {}", res.getErrcode(), res.getErrmsg());
 	            	throw new BusinessError(BusinessError.ERR_SERVICE_FAULT, "获取第三方平台调用凭据失败");
 	            });
 	    
@@ -78,7 +78,7 @@ public class WeixinAPI {
 	            	log.debug("api_create_preauthcode return: {}", msg);
 	            	PreAuthCode res = JSONObject.parseObject(msg, PreAuthCode.class);
 	            	if(res.getErrcode() == 0) return res;
-	            	log.error("api_query_auth fail: {} - {}", res.getErrcode(), res.getErrmsg());
+	            	log.error("api_create_preauthcode fail: {} - {}", res.getErrcode(), res.getErrmsg());
 	            	throw new BusinessError(BusinessError.ERR_SERVICE_FAULT, "获取预授权码失败");
 	            });
 	    
@@ -146,7 +146,7 @@ public class WeixinAPI {
 	            	log.debug("api_authorizer_token return: {}", msg);
 	            	AuthorizerAccessToken res = JSONObject.parseObject(msg, AuthorizerAccessToken.class);
 	            	if(res.getErrcode() == 0) return res;
-	            	log.error("api_query_auth fail: {} - {}", res.getErrcode(), res.getErrmsg());
+	            	log.error("api_authorizer_token fail: {} - {}", res.getErrcode(), res.getErrmsg());
 	            	throw new BusinessError(BusinessError.ERR_SERVICE_FAULT, "刷新调用凭据失败");
 	            });
 	    
