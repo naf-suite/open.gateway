@@ -73,9 +73,10 @@ public class TokenService {
 	 * @param appId 要授权的公众号appId
 	 * @return
 	 */
-	public Mono<String> preAuthCode(String appId) {
+	public Mono<String> preAuthCode() {
+		String compId = config.getComponent().getAppId();
 		return this.componentAccessToken().flatMap(token -> {
-			return this.api.preAuthCode(appId, token).map(res -> res.getPre_auth_code());
+			return this.api.preAuthCode(compId, token).map(res -> res.getPre_auth_code());
 		});
 	}
 

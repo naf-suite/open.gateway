@@ -27,11 +27,11 @@ public class WeixinAPI {
 	 * @param ticket
 	 * @return
 	 */
-	public Mono<ComponentAccessToken> componentAccessToken(String appId, String secret, String ticket) {
+	public Mono<ComponentAccessToken> componentAccessToken(String compId, String secret, String ticket) {
 	    WebClient client = WebClient.create("https://api.weixin.qq.com/cgi-bin/component");
 
 	    String req = new JSONObject()
-	    		.fluentPut("component_appid", appId)
+	    		.fluentPut("component_appid", compId)
 	    		.fluentPut("component_appsecret", secret)
 	    		.fluentPut("component_verify_ticket", ticket)
 	    		.toJSONString();
@@ -60,14 +60,14 @@ public class WeixinAPI {
 	 * @param token
 	 * @return
 	 */
-	public Mono<PreAuthCode> preAuthCode(String appId, String token) {
+	public Mono<PreAuthCode> preAuthCode(String compId, String token) {
 
-    	log.debug("call preAuthCode, appId: {} token: {}", appId, token);
+    	log.debug("call preAuthCode, appId: {} token: {}", compId, token);
     	
     	WebClient client = WebClient.create("https://api.weixin.qq.com/cgi-bin/component");
 
 	    String req = new JSONObject()
-	    		.fluentPut("component_appid", appId)
+	    		.fluentPut("component_appid", compId)
 	    		.toJSONString();
 	    
 	    Mono<PreAuthCode> result = client.post()
@@ -95,11 +95,11 @@ public class WeixinAPI {
 	 * @param code
 	 * @return
 	 */
-	public Mono<Authorization_info> apiQueryAuth(String appId, String token, String code) {
+	public Mono<Authorization_info> apiQueryAuth(String compId, String token, String code) {
 	    WebClient client = WebClient.create("https://api.weixin.qq.com/cgi-bin/component");
 
 	    String req = new JSONObject()
-	    		.fluentPut("component_appid", appId)
+	    		.fluentPut("component_appid", compId)
 	    		.fluentPut("authorization_code", code)
 	    		.toJSONString();
 	    
@@ -129,12 +129,12 @@ public class WeixinAPI {
 	 * @param refreshToken
 	 * @return
 	 */
-	public Mono<AuthorizerAccessToken> apiAuthorizerToken(String appId, String token, String authApp, String refreshToken) {
+	public Mono<AuthorizerAccessToken> apiAuthorizerToken(String compId, String token, String appId, String refreshToken) {
 	    WebClient client = WebClient.create("https://api.weixin.qq.com/cgi-bin/component");
 
 	    String req = new JSONObject()
-	    		.fluentPut("component_appid", appId)
-	    		.fluentPut("authorizer_appid", authApp)
+	    		.fluentPut("component_appid", compId)
+	    		.fluentPut("authorizer_appid", appId)
 	    		.fluentPut("authorizer_refresh_token", refreshToken)
 	    		.toJSONString();
 	    
