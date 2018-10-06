@@ -1,0 +1,9 @@
+<xml>
+<AppId><![CDATA[wx4b4385cff773f3f9]]></AppId>
+<CreateTime>1538814297</CreateTime>
+<InfoType><![CDATA[authorized]]></InfoType>
+<AuthorizerAppid><![CDATA[wx6380e2d93be1f5b8]]></AuthorizerAppid>
+<AuthorizationCode><![CDATA[queryauthcode@@@l__RbPyrfXszGDrTK1aMwrsnLRsdDYxWF6r2tonxW_IMLUSBhc5W5NnDWJlB63TcNFd3ec0aGlTOuBnRn2rRUQ]]></AuthorizationCode>
+<AuthorizationCodeExpiredTime><![CDATA[1538817897]]></AuthorizationCodeExpiredTime>
+<PreAuthCode><![CDATA[preauthcode@@@EUvqw_crXF385sfRiZKDIKuDZUObMTWgn9Noq26kCTWCVjc7XsDGFSWH_EbH5xum]]></PreAuthCode>
+</xml>

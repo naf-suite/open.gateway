@@ -12,7 +12,7 @@ import cloud.weixin.open.gateway.Configure;
 import cloud.weixin.open.gateway.Configure.AppInfo;
 import cloud.weixin.open.gateway.aes.AesException;
 import cloud.weixin.open.gateway.aes.WXBizMsgCrypt;
-import cloud.weixin.open.gateway.data.EncryptMsg;
+import cloud.weixin.open.gateway.data.AuthMsg;
 import cloud.weixin.open.gateway.data.VerifyTicket;
 import gaf2.core.exception.BusinessError;
 import reactor.core.publisher.Mono;
@@ -87,23 +87,27 @@ public class TokenService {
 	 */
 	@Async
 	public void handleAuthMsg(String xmlData) {
-		log.debug("receive component_verify_ticket: \n{}", xmlData);
+		log.debug("receive component_auth_msg: \n{}", xmlData);
 		try {
-			EncryptMsg msg = EncryptMsg.fromXml(xmlData);
-			AppInfo appInfo = config.getComponent();
-			String appId = msg.getAppId();
-			if (!appId.equals(appInfo.getAppId())) {
-				log.error("appId与配置信息不匹配: {} <-> {}", appId, appInfo.getAppId());
-				return;
-			}
-			String key = appInfo.getKey();
-			String token = appInfo.getToken();
-			WXBizMsgCrypt pc = new WXBizMsgCrypt(token, key, appId);
-			String text = pc.decrypt(msg.getEncrypt());
-			log.debug("decrypt component_verify_ticket result: \n{}", text);
-			VerifyTicket ticket = VerifyTicket.fromXml(text);
-			log.debug("save component_verify_ticket: {} - {}", appId, ticket.getTicket());
-			this.cache.setCache(compTicketKey(), ticket.getTicket());
+			AuthMsg msg = AuthMsg.fromXml(xmlData);
+			if(msg.getEncrypt() != null) {
+				AppInfo appInfo = config.getComponent();
+				String appId = msg.getAppId();
+				if (!appId.equals(appInfo.getAppId())) {
+					log.error("appId与配置信息不匹配: {} <-> {}", appId, appInfo.getAppId());
+					return;
+				}
+				String key = appInfo.getKey();
+				String token = appInfo.getToken();
+				WXBizMsgCrypt pc = new WXBizMsgCrypt(token, key, appId);
+				String text = pc.decrypt(msg.getEncrypt());
+				log.debug("decrypt component_verify_ticket result: \n{}", text);
+				VerifyTicket ticket = VerifyTicket.fromXml(text);
+				log.debug("save component_verify_ticket: {} - {}", appId, ticket.getTicket());
+				this.cache.setCache(compTicketKey(), ticket.getTicket());
+			} else /*if ("authorized".equalsIgnoreCase(msg.getInfoType()))*/{
+				log.info("component_auth_msg: infoType-{} appId-{}", msg.getInfoType(), msg.getAuthorizerAppid());
+			} 
 		} catch (AesException e) {
 			// TODO Auto-generated catch block
 			log.warn("解密component_verify_ticket失败", e);

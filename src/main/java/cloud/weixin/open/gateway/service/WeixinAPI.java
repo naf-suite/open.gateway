@@ -104,7 +104,7 @@ public class WeixinAPI {
 	    		.toJSONString();
 	    
 	    Mono<Authorization_info> result = client.post()
-	            .uri("/api_query_auth?component_access_token={}", token)
+	            .uri("/api_query_auth?component_access_token=" + token)
 	            .contentType(MediaType.APPLICATION_JSON)
 	            .accept(MediaType.APPLICATION_JSON)
 	            .syncBody(req)
@@ -139,7 +139,7 @@ public class WeixinAPI {
 	    		.toJSONString();
 	    
 	    Mono<AuthorizerAccessToken> result = client.post()
-	            .uri("/api_authorizer_token?component_access_token={}", token)
+	            .uri("/api_authorizer_token?component_access_token=" + token)
 	            .contentType(MediaType.APPLICATION_JSON)
 	            .accept(MediaType.APPLICATION_JSON)
 	            .syncBody(req)
