@@ -92,9 +92,9 @@ public class TokenService {
 		log.debug("receive component_auth_msg: \n{}", xmlData);
 		try {
 			AuthMsg msg = AuthMsg.fromXml(xmlData);
+			String appId = msg.getAppId();
 			if(msg.getEncrypt() != null) {
 				AppInfo appInfo = config.getComponent();
-				String appId = msg.getAppId();
 				if (!appId.equals(appInfo.getAppId())) {
 					log.error("appId与配置信息不匹配: {} <-> {}", appId, appInfo.getAppId());
 					return;
@@ -104,9 +104,12 @@ public class TokenService {
 				WXBizMsgCrypt pc = new WXBizMsgCrypt(token, key, appId);
 				String text = pc.decrypt(msg.getEncrypt());
 				log.debug("decrypt component_verify_ticket result: \n{}", text);
-				VerifyTicket ticket = VerifyTicket.fromXml(text);
-				log.debug("save component_verify_ticket: {} - {}", appId, ticket.getTicket());
-				this.cache.setCache(compTicketKey(), ticket.getTicket());
+				msg= AuthMsg.fromXml(text);
+			}
+			if("component_verify_ticket".equalsIgnoreCase(msg.getInfoType())) {
+				String ticket = msg.getComponentVerifyTicket();
+				log.debug("save component_verify_ticket: {} - {}", appId, ticket);
+				this.cache.setCache(compTicketKey(), ticket);
 			} else /*if ("authorized".equalsIgnoreCase(msg.getInfoType()))*/{
 				log.info("component_auth_msg: infoType-{} appId-{}", msg.getInfoType(), msg.getAuthorizerAppid());
 			} 

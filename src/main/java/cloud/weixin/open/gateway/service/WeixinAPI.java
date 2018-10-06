@@ -161,7 +161,9 @@ public class WeixinAPI {
 	 * 客服接口-发消息
 	 */
 	public Mono<String> sendCustomMessage(String token, String toUser, String content) {
-	    WebClient client = WebClient.create("https://api.weixin.qq.com/cgi-bin");
+    	log.debug("call sendCustomMessage, token: {} toUser: {} content: {}", token, toUser, content);
+
+    	WebClient client = WebClient.create("https://api.weixin.qq.com/cgi-bin");
 
 	    String req = new JSONObject()
 	    		.fluentPut("touser", toUser)

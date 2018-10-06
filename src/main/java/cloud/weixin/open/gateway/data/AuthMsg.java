@@ -35,6 +35,9 @@ public class AuthMsg {
 	@XmlElement(name = "PreAuthCode")
 	private String preAuthCode;
 	
+	@XmlElement(name = "ComponentVerifyTicket")
+	private String componentVerifyTicket;
+
 
 	public String getAppId() {
 		return appId;
@@ -78,7 +81,13 @@ public class AuthMsg {
 	public void setPreAuthCode(String preAuthCode) {
 		this.preAuthCode = preAuthCode;
 	}
-	
+	public String getComponentVerifyTicket() {
+		return componentVerifyTicket;
+	}
+	public void setComponentVerifyTicket(String componentVerifyTicket) {
+		this.componentVerifyTicket = componentVerifyTicket;
+	}
+
 	public static AuthMsg fromXml(String xmlData) throws JAXBException {
 		JAXBContext jaxbContext;
 		jaxbContext = JAXBContext.newInstance(AuthMsg.class);
