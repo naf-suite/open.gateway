@@ -157,7 +157,7 @@ public class Application {
 	 */
 	@PostMapping("/api.weixin.qq.com/**")
 	public @ResponseBody Mono<String> apiPost(String appId, @RequestBody String postData, ServerHttpRequest request) {
-		String api = request.getPath().subPath(6).toString();
+		String api = request.getPath().subPath(6).value();
 		log.info("request api {} for ...", api, appId);
 		log.debug("postData: {}", postData);
 		return this.service.accessToken(appId)
