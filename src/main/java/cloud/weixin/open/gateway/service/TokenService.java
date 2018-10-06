@@ -15,7 +15,6 @@ import cloud.weixin.open.gateway.aes.WXBizMsgCrypt;
 import cloud.weixin.open.gateway.data.AppMsg;
 import cloud.weixin.open.gateway.data.AuthMsg;
 import cloud.weixin.open.gateway.data.EncryptMsg;
-import cloud.weixin.open.gateway.data.VerifyTicket;
 import gaf2.core.exception.BusinessError;
 import reactor.core.publisher.Mono;
 
@@ -147,10 +146,10 @@ public class TokenService {
 				.flatMap(token->{
 					return this.api.apiQueryAuth(compId, token, authCode);
 				}).flatMap(authInfo -> {
-					String token = authInfo.getAuthorizer_access_token();
+					String access_token = authInfo.getAuthorizer_access_token();
 					String toUser = msg.getFromUserName();
 					String content = authCode + "_from_api";
-					return this.api.sendCustomMessage(token, toUser, content);
+					return this.api.sendCustomMessage(access_token, toUser, content);
 				}).block();
 			log.info("handleTestMsg result: {}", res);
 		}
