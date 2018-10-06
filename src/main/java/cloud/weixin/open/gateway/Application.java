@@ -153,7 +153,7 @@ public class Application {
 	}
 
 	/**
-	 * 授权成功回调地址
+	 * 微信接口代理
 	 */
 	@PostMapping("/api.weixin.qq.com/**")
 	public @ResponseBody Mono<String> apiPost(String appId, @RequestBody String postData, ServerHttpRequest request) {
@@ -163,6 +163,22 @@ public class Application {
 		return this.service.accessToken(appId)
 		.flatMap(token->{
 			return this.weixin.apiPost(api, token, postData, false);
+		}).onErrorResume(err->{
+			String res = new JSONObject()
+			.fluentPut("errcode", -1)
+			.fluentPut("errmsg", err.getMessage())
+			.toJSONString();
+			return Mono.just(res);
+		});
+	}
+
+	@GetMapping("/api.weixin.qq.com/**")
+	public @ResponseBody Mono<String> apiGet(String appId, ServerHttpRequest request) {
+		String api = request.getPath().subPath(6).value();
+		log.info("request api {} for ...", api, appId);
+		return this.service.accessToken(appId)
+		.flatMap(token->{
+			return this.weixin.apiGet(api, token, false);
 		}).onErrorResume(err->{
 			String res = new JSONObject()
 			.fluentPut("errcode", -1)

@@ -189,14 +189,12 @@ public class WeixinAPI {
 	public Mono<String> apiPost(String api, String token, String postData, boolean checkRes) {
 		Assert.hasText(api, "api 不能为空");
 		Assert.hasText(token, "token 不能为空");
-    	log.info("apiPost {}, token: {} ", api, token);
+    	log.info("api post {}, token: {} ", api, token);
     	log.debug("{} postData: {}", api, postData);
     	
     	WebClient client = WebClient.create("https://api.weixin.qq.com/cgi-bin");
 
 	    String req = postData == null?"":postData;
-	    
-	    log.debug("sendCustomMessage request data: {}", req);
 	    
 	    String uri;
 	    try {
@@ -219,6 +217,43 @@ public class WeixinAPI {
 		            	WeixinMsg res = JSONObject.parseObject(msg, WeixinMsg.class);
 		            	if(res.getErrcode() != 0) {
 			            	log.error("post {} fail: {} - {}", api, res.getErrcode(), res.getErrmsg());
+			            	throw new BusinessError(BusinessError.ERR_SERVICE_FAULT, "调用接口失败");
+		            	}
+	            	}
+	            	return msg;
+	            });
+	    
+	    return result;
+    }
+	public Mono<String> apiGet(String api, String token) {
+		return apiGet(api, token, true);
+	}
+	public Mono<String> apiGet(String api, String token, boolean checkRes) {
+		Assert.hasText(api, "api 不能为空");
+		Assert.hasText(token, "token 不能为空");
+    	log.info("api get {}, token: {} ", api, token);
+    	
+    	WebClient client = WebClient.create("https://api.weixin.qq.com/cgi-bin");
+
+	    String uri;
+	    try {
+			uri = api + "?access_token=" + URLEncoder.encode(token, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			log.warn("URL编码错误", e);
+			uri = api + "?access_token=" + token;
+		}
+
+	    Mono<String> result = client.get()
+	            .uri(uri)
+	            .accept(MediaType.APPLICATION_JSON)
+	            .retrieve()
+	            .bodyToMono(String.class)
+	            .map(msg->{
+	            	log.debug("post {} return: {}", api, msg);
+	            	if(checkRes) {
+		            	WeixinMsg res = JSONObject.parseObject(msg, WeixinMsg.class);
+		            	if(res.getErrcode() != 0) {
+			            	log.error("get {} fail: {} - {}", api, res.getErrcode(), res.getErrmsg());
 			            	throw new BusinessError(BusinessError.ERR_SERVICE_FAULT, "调用接口失败");
 		            	}
 	            	}
