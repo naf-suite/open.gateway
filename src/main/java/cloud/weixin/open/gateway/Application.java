@@ -91,7 +91,7 @@ public class Application {
 		if(baseUrl.endsWith("/")) baseUrl.substring(0, baseUrl.length()-1);
 		String redirect_uri = String.format("%s/%s/auth_ok", config.getBaseUrl(), appId);
 		
-		return this.service.preAuthCode(appId).map(pre_auth_code->{
+		return this.service.preAuthCode().map(pre_auth_code->{
 				String url = String.format(uri_template, 
 						config.getComponent().getAppId(),
 						pre_auth_code,
