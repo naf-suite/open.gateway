@@ -107,6 +107,7 @@ public class WeixinService {
 					// TODO: refresh access token
 					String refreshToken = this.cache.getCache(authKey(appId, "refresh"));
 					if(refreshToken == null) {
+						log.error("appid-{} refresh token not found!", appId);
 						throw new BusinessError(BusinessError.ERR_SERVICE_FAULT, "refresh token not found!");
 					}
 					return this.api.apiAuthorizerToken(appInfo.getAppId(), compAccessToken, appId, refreshToken);
