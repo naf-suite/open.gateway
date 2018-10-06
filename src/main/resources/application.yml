@@ -5,23 +5,17 @@ spring:
 
 ---
 spring:
-  profiles: default
-  redis:
-    host: 192.168.1.151
-    port: 6379
-
----
-spring:
   profiles: dev
 server.port: 8080
 open:
   gateway:
     auth-base-url: http://localhost:5080
     use-redis: false
-    secret:
-      wx4b4385cff773f3f9: 
-        secret: ec8bcde9504c0ea1701988c5e741b865
-        aeskey: BojYAIsgTGPFqgtphrqR4j2Lmz1IamBcPJgWGHvwKqw
+    component:
+      app-id: wx4b4385cff773f3f9
+      secret: ec8bcde9504c0ea1701988c5e741b865
+      key: BojYAIsgTGPFqgtphrqR4j2Lmz1IamBcPJgWGHvwKqw
+      token: huiantongxin123123
 
 logging.level.cloud.weixin.open.gateway.*: DEBUG      
       
@@ -29,15 +23,17 @@ logging.level.cloud.weixin.open.gateway.*: DEBUG
 spring:
   profiles: prod
   redis:
-    host: 10.163.150.30
+    host: localhost
+    port: 6379
+
 server.port: 8002
 open:
   gateway:
     auth-base-url: http://www.jilinjobswx.cn
     use-redis: true
-    apps:
-      wx4b4385cff773f3f9: 
-        secret: ec8bcde9504c0ea1701988c5e741b865
-        key: BojYAIsgTGPFqgtphrqR4j2Lmz1IamBcPJgWGHvwKqw
-        token: huiantongxin123123
+    component:
+      app-id: wx4b4385cff773f3f9
+      secret: ec8bcde9504c0ea1701988c5e741b865
+      key: BojYAIsgTGPFqgtphrqR4j2Lmz1IamBcPJgWGHvwKqw
+      token: huiantongxin123123
       

@@ -1,16 +1,19 @@
 package cloud.weixin.open.gateway;
 
-import java.util.Map;
+import javax.validation.constraints.NotNull;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
 
 @ConfigurationProperties(prefix="open.gateway")
+@Validated
 public class Configure {
 	
     private boolean useRedis;
     private boolean newMode = true;
-    private Map<String,AppInfo> apps;
     private String authBaseUrl;
+    @NotNull
+    private AppInfo component; // 三方平台配置信息
 
 	public boolean isUseRedis() {
 		return useRedis;
@@ -18,14 +21,6 @@ public class Configure {
 
 	public void setUseRedis(boolean useRedis) {
 		this.useRedis = useRedis;
-	}
-
-	public Map<String, AppInfo> getApps() {
-		return apps;
-	}
-
-	public void setApps(Map<String, AppInfo> apps) {
-		this.apps = apps;
 	}
 
 	public String getAuthBaseUrl() {
@@ -43,21 +38,9 @@ public class Configure {
 	public void setNewMode(boolean newMode) {
 		this.newMode = newMode;
 	}
-	
-	public String getAppSecret(String appid) {
-		if(apps != null && apps.containsKey(appid)) {
-			return apps.get(appid).getSecret();
-		}
-		return null;
-	}
-	public String getAppKey(String appid) {
-		if(apps != null && apps.containsKey(appid)) {
-			return apps.get(appid).getSecret();
-		}
-		return null;
-	}
-	
+
 	public static class AppInfo {
+		private String appId;
 		private String secret;
 		private String key;
 		private String token;
@@ -80,7 +63,21 @@ public class Configure {
 		public void setToken(String token) {
 			this.token = token;
 		}
+		public String getAppId() {
+			return appId;
+		}
+		public void setAppId(String appId) {
+			this.appId = appId;
+		}
 		
+	}
+
+	public AppInfo getComponent() {
+		return component;
+	}
+
+	public void setComponent(AppInfo component) {
+		this.component = component;
 	}
 
 }

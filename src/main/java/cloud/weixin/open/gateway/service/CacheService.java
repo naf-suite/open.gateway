@@ -48,7 +48,11 @@ public class CacheService {
     	setCache(key, val, 0, false);
 	}
 
-	public void setCache(String key, String val, long expire, boolean compatible) {
+	public void setCache(String key, String val, int expire_in) {
+    	setCache(key, val, expire_in, false);
+	}
+
+	public void setCache(String key, String val, int expire, boolean compatible) {
 		if(config.isUseRedis()){
 			if(expire > 0){
 				template.opsForValue().set(key, val, expire, TimeUnit.SECONDS);
