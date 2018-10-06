@@ -9,7 +9,7 @@ spring:
 server.port: 8080
 open:
   gateway:
-    auth-base-url: http://localhost:5080
+    base-url: http://localhost:5080
     use-redis: false
     component:
       app-id: wx4b4385cff773f3f9
@@ -29,7 +29,7 @@ spring:
 server.port: 8002
 open:
   gateway:
-    auth-base-url: http://www.jilinjobswx.cn
+    base-url: http://www.jilinjobswx.cn/open
     use-redis: true
     component:
       app-id: wx4b4385cff773f3f9

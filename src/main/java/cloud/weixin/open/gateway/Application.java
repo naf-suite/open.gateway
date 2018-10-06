@@ -6,10 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import cloud.weixin.open.gateway.service.TokenService;
+import gaf2.core.exception.BusinessError;
 import reactor.core.publisher.Mono;
 
 @SpringBootApplication
@@ -29,9 +30,6 @@ import reactor.core.publisher.Mono;
 public class Application {
 	
 	Logger log =  LoggerFactory.getLogger(Application.class);
-	
-	@Autowired
-	private ApplicationEventPublisher applicationEventPublisher;
 	
 	@Autowired
 	TokenService service;
@@ -115,6 +113,25 @@ public class Application {
 		log.info("request auth_ok...");
 		model.addAttribute("message", "三方平台授权成功");
 		return Mono.just("info");
+	}
+
+	Mono<String> error(String message, Model model) {
+		model.addAttribute("message", message);
+		return Mono.just("error");
+	}
+
+	@ExceptionHandler
+	public Mono<String> handleException(Throwable ex, Model model) {
+		if (ex instanceof BusinessError) {
+			BusinessError err = (BusinessError) ex;
+			log.warn("处理失败: {}-{}", err.getErrorCode(), err.getMessage());
+			log.debug("错误详情: ", ex);
+			return error(err.getMessage(), model);
+		} else {
+			log.error("处理失败: {}", ex.getMessage());
+			log.debug("错误详情: ", ex);
+			return error("请求处理失败，请稍后再试", model);
+		}
 	}
 
 	public static void main(String[] args) {

@@ -88,7 +88,7 @@ public class TokenService {
 			EncryptMsg msg = EncryptMsg.fromXml(xmlData);
 			AppInfo appInfo = config.getComponent();
 			String appId = msg.getAppId();
-			if (appId.equals(appInfo.getAppId())) {
+			if (!appId.equals(appInfo.getAppId())) {
 				log.error("appId与配置信息不匹配: {} <-> {}", appId, appInfo.getAppId());
 				return;
 			}

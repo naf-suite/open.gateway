@@ -11,7 +11,7 @@ public class Configure {
 	
     private boolean useRedis;
     private boolean newMode = true;
-    private String authBaseUrl;
+    private String baseUrl;
     @NotNull
     private AppInfo component; // 三方平台配置信息
 
@@ -23,12 +23,12 @@ public class Configure {
 		this.useRedis = useRedis;
 	}
 
-	public String getAuthBaseUrl() {
-		return authBaseUrl;
+	public String getBaseUrl() {
+		return baseUrl;
 	}
 
-	public void setAuthBaseUrl(String authBaseUrl) {
-		this.authBaseUrl = authBaseUrl;
+	public void setBaseUrl(String baseUrl) {
+		this.baseUrl = baseUrl;
 	}
 
 	public boolean isNewMode() {
