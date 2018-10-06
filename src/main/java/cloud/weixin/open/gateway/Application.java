@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.http.HttpRequest;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -148,8 +149,9 @@ public class Application {
 	/**
 	 * 授权成功回调地址
 	 */
-	@PostMapping("/api.weixin.qq.com/{api}")
-	public @ResponseBody Mono<String> apiPost(@PathVariable(name="api",required=true) String api, String appId, @RequestBody String postData) {
+	@PostMapping("/api.weixin.qq.com/**")
+	public @ResponseBody Mono<String> apiPost(String appId, @RequestBody String postData, HttpRequest request) {
+		String api = request.getURI().toString();
 		log.info("request api {}...", api);
 		log.debug("postData: {}", postData);
 		return Mono.just("no implements!");
