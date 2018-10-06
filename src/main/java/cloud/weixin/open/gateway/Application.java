@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.http.HttpRequest;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import cloud.weixin.open.gateway.data.AppMsg;
 import cloud.weixin.open.gateway.service.TokenService;
+import cloud.weixin.open.gateway.service.WeixinAPI;
 import gaf2.core.exception.BusinessError;
 import reactor.core.publisher.Mono;
 
@@ -41,6 +42,9 @@ public class Application {
 	
 	@Autowired
 	TokenService service;
+
+	@Autowired
+	WeixinAPI weixin;
 
     @Autowired
     private Configure config;
@@ -150,11 +154,14 @@ public class Application {
 	 * 授权成功回调地址
 	 */
 	@PostMapping("/api.weixin.qq.com/**")
-	public @ResponseBody Mono<String> apiPost(String appId, @RequestBody String postData, HttpRequest request) {
-		String api = request.getURI().toString();
-		log.info("request api {}...", api);
+	public @ResponseBody Mono<String> apiPost(String appId, @RequestBody String postData, ServerHttpRequest request) {
+		String api = request.getPath().subPath(6).toString();
+		log.info("request api {} for ...", api, appId);
 		log.debug("postData: {}", postData);
-		return Mono.just("no implements!");
+		return this.service.accessToken(appId)
+		.flatMap(token->{
+			return this.weixin.apiPost(api, token, postData);
+		});
 	}
 
 	Mono<String> error(String message, Model model) {

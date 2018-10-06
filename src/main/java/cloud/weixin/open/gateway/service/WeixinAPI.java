@@ -167,10 +167,11 @@ public class WeixinAPI {
 	public Mono<String> sendCustomMessage(String token, String toUser, String content) {
     	log.debug("call sendCustomMessage, token: {} toUser: {} content: {}", token, toUser, content);
 
-    	JSONObject req = new JSONObject()
+    	String req = new JSONObject()
 	    		.fluentPut("touser", toUser)
 	    		.fluentPut("msgtype", "text")
-	    		.fluentPut("text", new JSONObject().fluentPut("content", content));
+	    		.fluentPut("text", new JSONObject().fluentPut("content", content))
+	    		.toJSONString();
 	    
 	    log.debug("sendCustomMessage request data: {}", req);
 
@@ -182,7 +183,7 @@ public class WeixinAPI {
 	/**
 	 * Post接口
 	 */
-	public Mono<String> apiPost(String api, String token, JSONObject postData) {
+	public Mono<String> apiPost(String api, String token, String postData) {
 		Assert.hasText(api, "api 不能为空");
 		Assert.hasText(token, "token 不能为空");
     	log.info("apiPost {}, token: {} ", api, token);
@@ -190,7 +191,7 @@ public class WeixinAPI {
     	
     	WebClient client = WebClient.create("https://api.weixin.qq.com/cgi-bin");
 
-	    String req = postData == null?"":postData.toJSONString();
+	    String req = postData == null?"":postData;
 	    
 	    log.debug("sendCustomMessage request data: {}", req);
 	    
