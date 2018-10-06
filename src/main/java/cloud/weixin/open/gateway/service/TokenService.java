@@ -82,6 +82,39 @@ public class TokenService {
 	}
 
 	/**
+	 * 获得公众平台的AccessToken
+	 */
+	public Mono<String> accessToken(String appId) {
+
+		// TODO: 从cache中获取token
+		String token = this.cache.getCache(authKey(appId, "token"));
+		if (token != null) {
+			return Mono.just(token);
+		}
+		
+		// TODO: 通过接口获得component_access_token
+		AppInfo appInfo = config.getComponent();
+		return this.componentAccessToken()
+				.flatMap(compAccessToken -> {
+					// TODO: refresh access token
+					String refreshToken = this.cache.getCache(authKey(appId, "refresh"));
+					if(refreshToken == null) {
+						throw new BusinessError(BusinessError.ERR_SERVICE_FAULT, "refresh token not found!");
+					}
+					return this.api.apiAuthorizerToken(appInfo.getAppId(), compAccessToken, appId, refreshToken);
+				}).map(authInfo -> {
+					String key = authKey(appId, "token");
+					String val = authInfo.getAuthorizer_access_token();
+					int expires = authInfo.getExpires_in() - expires_off;
+					this.cache.setCache(key, val, expires);
+					key = authKey(appId, "refresh");
+					val = authInfo.getAuthorizer_refresh_token();
+					this.cache.setCache(key, val);
+					return authInfo.getAuthorizer_access_token();
+				});
+	}
+
+	/**
 	 * 处理授权推送消息
 	 * 
 	 * @param xmlData
@@ -128,12 +161,21 @@ public class TokenService {
 	@Async
 	public void handleAppMsg(String appId, String xmlData) {
 		log.debug("receive app_msg: \n{}", xmlData);
+		try {
+			xmlData = decryptMsg(xmlData);
+			AppMsg msg = AppMsg.fromXml(xmlData);
+			if("text".equalsIgnoreCase(msg.getMsgType())) {
+				handleTextMsg(appId, msg);
+			} else if ("event".equals(msg.getMsgType())){
+				handleEventMsg(appId, msg);
+			} 
+		} catch (JAXBException e) {
+			log.warn("解析公众号消息失败", e);
+		}
 	}
 
 	/**
-	 * 处理公众号推送消息
-	 * 
-	 * @param xmlData
+	 * 处理测试公众号推送消息
 	 */
 	@Async
 	public void handleTestMsg(String appId, AppMsg msg) {
@@ -155,6 +197,20 @@ public class TokenService {
 		}
 	}
 	
+	/**
+	 * 处理公众号文本消息
+	 */
+	private void handleTextMsg(String appId, AppMsg msg) {
+		log.debug("receive app[{}] text msg: {}", appId, msg.getContent());
+	}
+	
+	/**
+	 * 处理公众号事件消息
+	 */
+	private void handleEventMsg(String appId, AppMsg msg) {
+		log.debug("receive app[{}] event msg: {} - {}", appId, msg.getEvent(), msg.getEventKey());
+	}
+
 	/**
 	 * 解密消息
 	 * @param xmlData

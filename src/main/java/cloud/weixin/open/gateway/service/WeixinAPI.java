@@ -1,9 +1,13 @@
 package cloud.weixin.open.gateway.service;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.alibaba.fastjson.JSONObject;
@@ -163,28 +167,53 @@ public class WeixinAPI {
 	public Mono<String> sendCustomMessage(String token, String toUser, String content) {
     	log.debug("call sendCustomMessage, token: {} toUser: {} content: {}", token, toUser, content);
 
-    	WebClient client = WebClient.create("https://api.weixin.qq.com/cgi-bin");
-
-	    String req = new JSONObject()
+    	JSONObject req = new JSONObject()
 	    		.fluentPut("touser", toUser)
 	    		.fluentPut("msgtype", "text")
-	    		.fluentPut("text", new JSONObject().fluentPut("content", content))
-	    		.toJSONString();
+	    		.fluentPut("text", new JSONObject().fluentPut("content", content));
 	    
 	    log.debug("sendCustomMessage request data: {}", req);
 
+	    Mono<String> result = apiPost("/message/custom/send", token, req);
+	    
+	    return result;
+    }
+
+	/**
+	 * Post接口
+	 */
+	public Mono<String> apiPost(String api, String token, JSONObject postData) {
+		Assert.hasText(api, "api 不能为空");
+		Assert.hasText(token, "token 不能为空");
+    	log.info("apiPost {}, token: {} ", api, token);
+    	log.debug("{} postData: {}", api, postData);
+    	
+    	WebClient client = WebClient.create("https://api.weixin.qq.com/cgi-bin");
+
+	    String req = postData == null?"":postData.toJSONString();
+	    
+	    log.debug("sendCustomMessage request data: {}", req);
+	    
+	    String uri;
+	    try {
+			uri = api + "?access_token=" + URLEncoder.encode(token, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			log.warn("URL编码错误", e);
+			uri = api + "?access_token=" + token;
+		}
+
 	    Mono<String> result = client.post()
-	            .uri("/message/custom/send?access_token=" + token)
+	            .uri(uri)
 	            .contentType(MediaType.APPLICATION_JSON)
 	            .accept(MediaType.APPLICATION_JSON)
 	            .syncBody(req)
 	            .retrieve()
 	            .bodyToMono(String.class)
 	            .map(msg->{
-	            	log.debug("message_custom_send return: {}", msg);
+	            	log.debug("post {} return: {}", api, msg);
 	            	WeixinMsg res = JSONObject.parseObject(msg, WeixinMsg.class);
 	            	if(res.getErrcode() == 0) return msg;
-	            	log.error("message_custom_send fail: {} - {}", res.getErrcode(), res.getErrmsg());
+	            	log.error("post {} fail: {} - {}", api, res.getErrcode(), res.getErrmsg());
 	            	throw new BusinessError(BusinessError.ERR_SERVICE_FAULT, "调用接口失败");
 	            });
 	    

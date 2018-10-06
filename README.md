@@ -2,6 +2,8 @@
 
 公众平台信息： gh_cc6425d359a6: wxd2e28415cb866c0b #jilinjobs
 三方平台授权地址：http://www.jilinjobswx.cn/open/wxd2e28415cb866c0b/auth
+huian: http://www.jilinjobswx.cn/open/wx0a4d3e220354c906/auth
+
 
 发布记录：
 

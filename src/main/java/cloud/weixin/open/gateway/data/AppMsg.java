@@ -28,7 +28,16 @@ public class AppMsg {
 
 	@XmlElement(name = "MsgId")
 	private String msgId;
+	
+	@XmlElement(name = "Event")
+	private String event;
+	
+	@XmlElement(name = "EventKey")
+	private String eventKey;
 
+	@XmlElement(name = "Ticket")
+	private String ticket;
+ 
 	@XmlElement(name = "CreateTime")
 	private int createTime = 0;
 
@@ -78,6 +87,30 @@ public class AppMsg {
 
 	public void setCreateTime(int createTime) {
 		this.createTime = createTime;
+	}
+
+	public String getEvent() {
+		return event;
+	}
+
+	public void setEvent(String event) {
+		this.event = event;
+	}
+
+	public String getEventKey() {
+		return eventKey;
+	}
+
+	public void setEventKey(String eventKey) {
+		this.eventKey = eventKey;
+	}
+
+	public String getTicket() {
+		return ticket;
+	}
+
+	public void setTicket(String ticket) {
+		this.ticket = ticket;
 	}
 	
 	public static AppMsg fromXml(String xmlData) throws JAXBException {

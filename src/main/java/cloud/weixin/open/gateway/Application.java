@@ -145,6 +145,16 @@ public class Application {
 			.thenReturn("success");
 	}
 
+	/**
+	 * 授权成功回调地址
+	 */
+	@PostMapping("/api.weixin.qq.com/{api}")
+	public @ResponseBody Mono<String> apiPost(@PathVariable(name="api",required=true) String api, String appId, @RequestBody String postData) {
+		log.info("request api {}...", api);
+		log.debug("postData: {}", postData);
+		return Mono.just("no implements!");
+	}
+
 	Mono<String> error(String message, Model model) {
 		model.addAttribute("message", message);
 		return Mono.just("error");
