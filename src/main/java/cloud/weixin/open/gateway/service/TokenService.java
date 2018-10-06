@@ -136,7 +136,7 @@ public class TokenService {
 		return this.componentAccessToken()
 			.flatMap(token->{
 				return this.api.apiQueryAuth(compId, token, authCode);
-			}).map(authInfo -> {
+			}).flatMap(authInfo -> {
 				String key = authKey(appId, "token");
 				String val = authInfo.getAuthorizer_access_token();
 				int expires = authInfo.getExpires_in() - expires_off;
@@ -144,7 +144,7 @@ public class TokenService {
 				key = authKey(appId, "refresh");
 				val = authInfo.getAuthorizer_refresh_token();
 				this.cache.setCache(key, val);
-				return null;
+				return Mono.empty();
 			});
 	}
 
