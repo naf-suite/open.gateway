@@ -1,5 +1,8 @@
 package cloud.weixin.open.gateway;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,9 +76,10 @@ public class Application {
 	 * 公众号授权请求
 	 * @param appId 公众号appId
 	 * @return 重定向到授权页面
+	 * @throws UnsupportedEncodingException 
 	 */
 	@GetMapping("/{appId}/auth")
-	public Mono<String> auth(@PathVariable(name="appId",required=true) String appId, @RequestHeader("User-Agent") String userAgent) {
+	public Mono<String> auth(@PathVariable(name="appId",required=true) String appId, @RequestHeader("User-Agent") String userAgent) throws UnsupportedEncodingException {
 		log.info("request {} auth...", appId);
 		String template = null;
 		if(userAgent.contains("micromessenger")) {
@@ -89,7 +93,7 @@ public class Application {
 		String uri_template = template;
 		String baseUrl = config.getBaseUrl();
 		if(baseUrl.endsWith("/")) baseUrl.substring(0, baseUrl.length()-1);
-		String redirect_uri = String.format("%s/%s/auth_ok", config.getBaseUrl(), appId);
+		String redirect_uri = URLEncoder.encode(String.format("%s/%s/auth_ok", config.getBaseUrl(), appId), "UTF-8");
 		
 		return this.service.preAuthCode().map(pre_auth_code->{
 				String url = String.format(uri_template, 
