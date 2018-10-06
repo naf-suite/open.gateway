@@ -2,6 +2,9 @@ package cloud.weixin.open.gateway;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Calendar;
+
+import javax.xml.bind.JAXBException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import cloud.weixin.open.gateway.data.AppMsg;
 import cloud.weixin.open.gateway.service.TokenService;
 import gaf2.core.exception.BusinessError;
 import reactor.core.publisher.Mono;
@@ -67,11 +71,31 @@ public class Application {
 	 */
 	@PostMapping("/{appId}/app_msg")
 	public @ResponseBody Mono<String> app_msg(@PathVariable(name="appId",required=true) String appId, @RequestBody String xmlData) {
-		log.info("request app_msg...");
+		log.info("request {} app_msg...", appId);
 		service.handleAppMsg(appId, xmlData);
 		return Mono.just("success");
 	}
 	
+	/**
+	 * 接收测试公众号消息推送
+	 * @throws JAXBException 
+	 */
+	@PostMapping("/wx570bc396a51b8ff8/app_msg")
+	public @ResponseBody Mono<String> app_msg(@RequestBody String xmlData) throws JAXBException {
+		log.info("request test app_msg...");
+		String appId = "wx570bc396a51b8ff8";
+		xmlData = service.decryptMsg(xmlData);
+		AppMsg msg = AppMsg.fromXml(xmlData);
+		if("text".equals(msg.getMsgType())) {
+			if("TESTCOMPONENT_MSG_TYPE_TEXT".equalsIgnoreCase(msg.getContent())) {
+				String res = String.format("<xml><ToUserName><![CDATA[%s]]></ToUserName><FromUserName><![CDATA[gh_3c884a361561]]></FromUserName><CreateTime>%d</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[TESTCOMPONENT_MSG_TYPE_TEXT_callback]]></Content></xml>", msg.getFromUserName(), Calendar.getInstance().getTimeInMillis()/1000);
+				return Mono.just(res);
+			}
+			service.handleTestMsg(appId, msg);
+		}
+		return Mono.just("success");
+	}
+
 	/**
 	 * 公众号授权请求
 	 * @param appId 公众号appId

@@ -13,6 +13,7 @@ import cloud.weixin.open.gateway.data.ComponentAccessToken;
 import cloud.weixin.open.gateway.data.PreAuthCode;
 import cloud.weixin.open.gateway.data.QueryAuthRes;
 import cloud.weixin.open.gateway.data.QueryAuthRes.Authorization_info;
+import cloud.weixin.open.gateway.data.WeixinMsg;
 import gaf2.core.exception.BusinessError;
 import reactor.core.publisher.Mono;
 
@@ -151,6 +152,36 @@ public class WeixinAPI {
 	            	if(res.getErrcode() == 0) return res;
 	            	log.error("api_authorizer_token fail: {} - {}", res.getErrcode(), res.getErrmsg());
 	            	throw new BusinessError(BusinessError.ERR_SERVICE_FAULT, "刷新调用凭据失败");
+	            });
+	    
+	    return result;
+    }
+
+	/**
+	 * 客服接口-发消息
+	 */
+	public Mono<String> sendCustomMessage(String token, String toUser, String content) {
+	    WebClient client = WebClient.create("https://api.weixin.qq.com/cgi-bin");
+
+	    String req = new JSONObject()
+	    		.fluentPut("touser", toUser)
+	    		.fluentPut("msgtype", "text")
+	    		.fluentPut("text", new JSONObject().fluentPut("content", content))
+	    		.toJSONString();
+
+	    Mono<String> result = client.post()
+	            .uri("/message/custom/send?access_token=" + token)
+	            .contentType(MediaType.APPLICATION_JSON)
+	            .accept(MediaType.APPLICATION_JSON)
+	            .syncBody(req)
+	            .retrieve()
+	            .bodyToMono(String.class)
+	            .map(msg->{
+	            	log.debug("message_custom_send return: {}", msg);
+	            	WeixinMsg res = JSONObject.parseObject(msg, WeixinMsg.class);
+	            	if(res.getErrcode() == 0) return msg;
+	            	log.error("message_custom_send fail: {} - {}", res.getErrcode(), res.getErrmsg());
+	            	throw new BusinessError(BusinessError.ERR_SERVICE_FAULT, "调用接口失败");
 	            });
 	    
 	    return result;

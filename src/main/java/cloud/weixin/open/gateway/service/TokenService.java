@@ -12,7 +12,9 @@ import cloud.weixin.open.gateway.Configure;
 import cloud.weixin.open.gateway.Configure.AppInfo;
 import cloud.weixin.open.gateway.aes.AesException;
 import cloud.weixin.open.gateway.aes.WXBizMsgCrypt;
+import cloud.weixin.open.gateway.data.AppMsg;
 import cloud.weixin.open.gateway.data.AuthMsg;
+import cloud.weixin.open.gateway.data.EncryptMsg;
 import cloud.weixin.open.gateway.data.VerifyTicket;
 import gaf2.core.exception.BusinessError;
 import reactor.core.publisher.Mono;
@@ -125,6 +127,60 @@ public class TokenService {
 	public void handleAppMsg(String appId, String xmlData) {
 		log.debug("receive app_msg: \n{}", xmlData);
 	}
+
+	/**
+	 * 处理公众号推送消息
+	 * 
+	 * @param xmlData
+	 */
+	@Async
+	public void handleTestMsg(String appId, AppMsg msg) {
+		String prefix = "QUERY_AUTH_CODE:";
+		String text = msg.getContent();
+		if(text.startsWith(prefix)) {
+			String authCode = text.substring(prefix.length());
+			String compId = config.getComponent().getAppId();
+			String res = this.componentAccessToken()
+				.flatMap(token->{
+					return this.api.apiQueryAuth(compId, token, authCode);
+				}).flatMap(authInfo -> {
+					String token = authInfo.getAuthorizer_access_token();
+					String toUser = msg.getFromUserName();
+					String content = authCode + "_from_api";
+					return this.api.sendCustomMessage(token, toUser, content);
+				}).block();
+			log.info("handleTestMsg result: {}", res);
+		}
+	}
+	
+	/**
+	 * 解密消息
+	 * @param xmlData
+	 * @return
+	 */
+	public String decryptMsg(String xmlData) {
+		log.debug("decrypt xml message: \n{}", xmlData);
+		try {
+			EncryptMsg msg = EncryptMsg.fromXml(xmlData);
+			if(msg.getEncrypt() != null) {
+				AppInfo appInfo = config.getComponent();
+				String appId = appInfo.getAppId();
+				String key = appInfo.getKey();
+				String token = appInfo.getToken();
+				WXBizMsgCrypt pc = new WXBizMsgCrypt(token, key, appId);
+				String text = pc.decrypt(msg.getEncrypt());
+				log.debug("decrypt messsage result: \n{}", text);
+				return text;
+			}
+		} catch (AesException e) {
+			// TODO Auto-generated catch block
+			log.warn("解密消息失败", e);
+		} catch (JAXBException e) {
+			log.warn("解析xml失败", e);
+		}
+		return xmlData;
+	}
+
 
 	/**
 	 * 处理授权回调
