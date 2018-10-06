@@ -25,6 +25,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.alibaba.fastjson.JSONObject;
+
 import cloud.weixin.open.gateway.data.AppMsg;
 import cloud.weixin.open.gateway.service.TokenService;
 import cloud.weixin.open.gateway.service.WeixinAPI;
@@ -160,7 +162,13 @@ public class Application {
 		log.debug("postData: {}", postData);
 		return this.service.accessToken(appId)
 		.flatMap(token->{
-			return this.weixin.apiPost(api, token, postData);
+			return this.weixin.apiPost(api, token, postData, false);
+		}).onErrorResume(err->{
+			String res = new JSONObject()
+			.fluentPut("errcode", -1)
+			.fluentPut("errmsg", err.getMessage())
+			.toJSONString();
+			return Mono.just(res);
 		});
 	}
 

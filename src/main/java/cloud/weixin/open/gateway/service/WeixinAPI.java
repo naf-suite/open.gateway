@@ -184,6 +184,9 @@ public class WeixinAPI {
 	 * Post接口
 	 */
 	public Mono<String> apiPost(String api, String token, String postData) {
+		return apiPost(api, token, postData, true);
+	}
+	public Mono<String> apiPost(String api, String token, String postData, boolean checkRes) {
 		Assert.hasText(api, "api 不能为空");
 		Assert.hasText(token, "token 不能为空");
     	log.info("apiPost {}, token: {} ", api, token);
@@ -212,10 +215,14 @@ public class WeixinAPI {
 	            .bodyToMono(String.class)
 	            .map(msg->{
 	            	log.debug("post {} return: {}", api, msg);
-	            	WeixinMsg res = JSONObject.parseObject(msg, WeixinMsg.class);
-	            	if(res.getErrcode() == 0) return msg;
-	            	log.error("post {} fail: {} - {}", api, res.getErrcode(), res.getErrmsg());
-	            	throw new BusinessError(BusinessError.ERR_SERVICE_FAULT, "调用接口失败");
+	            	if(checkRes) {
+		            	WeixinMsg res = JSONObject.parseObject(msg, WeixinMsg.class);
+		            	if(res.getErrcode() != 0) {
+			            	log.error("post {} fail: {} - {}", api, res.getErrcode(), res.getErrmsg());
+			            	throw new BusinessError(BusinessError.ERR_SERVICE_FAULT, "调用接口失败");
+		            	}
+	            	}
+	            	return msg;
 	            });
 	    
 	    return result;
