@@ -4,7 +4,6 @@ spring:
     active: dev
 
 ---
-server.port: 8080
 spring:
   profiles: dev
   rabbitmq:
@@ -13,6 +12,8 @@ spring:
     virtual-host: demo
     username: dyg
     password: dyg123
+server.port: 8080
+
 open:
   gateway:
     base-url: http://localhost:5080
@@ -26,7 +27,6 @@ open:
 logging.level.cloud.weixin.open.gateway.*: DEBUG      
       
 ---
-server.port: 8002
 spring:
   profiles: prod
   redis:
@@ -38,6 +38,8 @@ spring:
     virtual-host: bypq
     username: bypq
     password: bypq123
+server.port: 8002
+
 open:
   gateway:
     base-url: http://www.jilinjobswx.cn/open
