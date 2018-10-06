@@ -1,12 +1,18 @@
 package cloud.weixin.open.gateway.service;
 
+import java.io.UnsupportedEncodingException;
+
 import javax.xml.bind.JAXBException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.core.TopicExchange;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
+import com.alibaba.fastjson.JSONObject;
 
 import cloud.weixin.open.gateway.Configure;
 import cloud.weixin.open.gateway.Configure.AppInfo;
@@ -19,24 +25,26 @@ import gaf2.core.exception.BusinessError;
 import reactor.core.publisher.Mono;
 
 @Service
-public class TokenService {
+public class WeixinService {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
+	@Autowired
 	private Configure config;
 
+	@Autowired
 	private CacheService cache;
 
+	@Autowired
 	private WeixinAPI api;
 	
-	private int expires_off = 300;
+    @Autowired
+    RabbitTemplate rabbitTemplate;
+    
+    @Autowired
+    TopicExchange topic;
 
-	@Autowired
-	public TokenService(Configure config, CacheService cache, WeixinAPI api) {
-		this.config = config;
-		this.cache = cache;
-		this.api = api;
-	}
+	private int expires_off = 300;
 
 	/**
 	 * 获得三方平台的AccessToken
@@ -209,6 +217,7 @@ public class TokenService {
 	 */
 	private void handleEventMsg(String appId, AppMsg msg) {
 		log.debug("receive app[{}] event msg: {} - {}", appId, msg.getEvent(), msg.getEventKey());
+		sendToMQ(appId, msg);
 	}
 
 	/**
@@ -276,5 +285,23 @@ public class TokenService {
 
 	String authKey(String appId, String type) {
 		return String.format("weixin:open:auth:%s:%s", appId, type);
+	}
+	
+	void sendToMQ(String appId, AppMsg msg) {
+		// TODO: 发送登录消息
+		String message = new JSONObject()
+				.fluentPut("toUserName", msg.getToUserName())
+				.fluentPut("fromUserName", msg.getFromUserName())
+				.fluentPut("event", msg.getEvent())
+				.fluentPut("eventKey", msg.getEventKey())
+				.fluentPut("ticket", msg.getTicket())
+				.fluentPut("msgid", msg.getMsgId())
+				.fluentPut("createTime", msg.getCreateTime())
+				.toJSONString();
+		try {
+			rabbitTemplate.convertAndSend(topic.getName(), msg.getEvent(), message.getBytes("UTF-8"));
+		} catch (UnsupportedEncodingException e) {
+			log.error("发送消息失败", e);
+		}
 	}
 }

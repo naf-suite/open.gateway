@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.alibaba.fastjson.JSONObject;
 
 import cloud.weixin.open.gateway.data.AppMsg;
-import cloud.weixin.open.gateway.service.TokenService;
+import cloud.weixin.open.gateway.service.WeixinService;
 import cloud.weixin.open.gateway.service.WeixinAPI;
 import gaf2.core.exception.BusinessError;
 import reactor.core.publisher.Mono;
@@ -44,7 +44,7 @@ public class Application {
 	Logger log =  LoggerFactory.getLogger(Application.class);
 	
 	@Autowired
-	TokenService service;
+	WeixinService service;
 
 	@Autowired
 	WeixinAPI weixin;
