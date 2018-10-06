@@ -26,12 +26,15 @@ public class TokenService {
 
 	private CacheService cache;
 
-	private ComponentService service;
+	private WeixinAPI api;
+	
+	private int expires_off = 300;
 
 	@Autowired
-	public TokenService(Configure config, CacheService cache, ComponentService service) {
+	public TokenService(Configure config, CacheService cache, WeixinAPI api) {
 		this.config = config;
 		this.cache = cache;
+		this.api = api;
 	}
 
 	/**
@@ -54,12 +57,12 @@ public class TokenService {
 
 		// TODO: 通过接口获得component_access_token
 		AppInfo appInfo = config.getComponent();
-		return this.service.componentAccessToken(appInfo.getAppId(), appInfo.getSecret(), ticket)
+		return this.api.componentAccessToken(appInfo.getAppId(), appInfo.getSecret(), ticket)
 				.map(compAccessToken -> {
 					// TODO: 保存component_access_token到cache
 					String res = compAccessToken.getComponent_access_token();
 					int expire_in = compAccessToken.getExpires_in();
-					this.cache.setCache(compTokenKey(), res, expire_in - 300);
+					this.cache.setCache(compTokenKey(), res, expire_in - expires_off);
 					return res;
 				});
 	}
@@ -72,7 +75,7 @@ public class TokenService {
 	 */
 	public Mono<String> preAuthCode(String appId) {
 		return this.componentAccessToken().flatMap(token -> {
-			return this.service.preAuthCode(appId, token).map(res -> res.getPre_auth_code());
+			return this.api.preAuthCode(appId, token).map(res -> res.getPre_auth_code());
 		});
 	}
 
@@ -118,6 +121,28 @@ public class TokenService {
 		log.debug("receive app_msg: \n{}", xmlData);
 	}
 
+	/**
+	 * 处理授权回调
+	 * 
+	 * @param authCode 回调参数中的认证码
+	 */
+	public Mono<Void> handleAuthOK(String appId, String authCode) {
+		String compId = config.getComponent().getAppId();
+		return this.componentAccessToken()
+			.flatMap(token->{
+				return this.api.apiQueryAuth(compId, token, authCode);
+			}).map(authInfo -> {
+				String key = authKey(appId, "token");
+				String val = authInfo.getAuthorizer_access_token();
+				int expires = authInfo.getExpires_in() - expires_off;
+				this.cache.setCache(key, val, expires);
+				key = authKey(appId, "refresh");
+				val = authInfo.getAuthorizer_refresh_token();
+				this.cache.setCache(key, val);
+				return null;
+			});
+	}
+
 	String compTokenKey() {
 		return compKey(config.getComponent().getAppId(), "token");
 	}
@@ -130,4 +155,7 @@ public class TokenService {
 		return String.format("weixin:open:comp:%s:%s", appId, type);
 	}
 
+	String authKey(String appId, String type) {
+		return String.format("weixin:open:auth:%s:%s", appId, type);
+	}
 }

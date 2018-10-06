@@ -61,8 +61,6 @@ public class Application {
 	
 	/**
 	 * 接收公众号消息推送
-	 * @param xmlData
-	 * @return
 	 */
 	@PostMapping("/{appId}/app_msg")
 	public @ResponseBody Mono<String> app_msg(@PathVariable(name="appId",required=true) String appId, @RequestBody String xmlData) {
@@ -107,14 +105,14 @@ public class Application {
 
 	/**
 	 * 授权成功回调地址
-	 * @param xmlData
-	 * @return
 	 */
 	@GetMapping("/{appId}/auth_ok")
 	public Mono<String> auth_ok(@PathVariable(name="appId",required=true) String appId, String auth_code, int expires_in, Model model) {
-		log.info("request auth_ok...");
+		log.info("request {} auth_ok...", appId);
+		log.debug("auth_code: {} expire_in: {}", auth_code, expires_in);
 		model.addAttribute("message", "三方平台授权成功");
-		return Mono.just("info");
+		return this.service.handleAuthOK(appId, auth_code)
+			.thenReturn("success");
 	}
 
 	Mono<String> error(String message, Model model) {

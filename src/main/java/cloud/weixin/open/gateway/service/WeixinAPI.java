@@ -17,7 +17,7 @@ import gaf2.core.exception.BusinessError;
 import reactor.core.publisher.Mono;
 
 @Service
-public class ComponentService {
+public class WeixinAPI {
 	private Logger log = LoggerFactory.getLogger(getClass());
 
 	/**
