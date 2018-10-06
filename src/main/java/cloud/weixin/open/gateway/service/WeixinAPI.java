@@ -45,14 +45,7 @@ public class WeixinAPI {
 	            .bodyToMono(String.class)
 	            .map(msg->{
 	            	log.debug("api_component_token return: {}", msg);
-	            	ComponentAccessToken res;
-	            	try{
-		            	res = JSONObject.parseObject(msg, ComponentAccessToken.class);
-		            	log.debug("api_query_auth res: {} - {}", res.getErrcode(), res.getErrmsg());
-	            	}catch(Throwable e){
-		            	log.error("api_query_auth parse fail", e);
-		            	throw new BusinessError(BusinessError.ERR_SERVICE_FAULT, "获取第三方平台调用凭据失败");
-	            	}
+	            	ComponentAccessToken res = JSONObject.parseObject(msg, ComponentAccessToken.class);
 	            	if(res.getErrcode() == 0) return res;
 	            	log.error("api_query_auth fail: {} - {}", res.getErrcode(), res.getErrmsg());
 	            	throw new BusinessError(BusinessError.ERR_SERVICE_FAULT, "获取第三方平台调用凭据失败");
@@ -82,7 +75,7 @@ public class WeixinAPI {
 	            .retrieve()
 	            .bodyToMono(String.class)
 	            .map(msg->{
-	            	log.debug("api_component_token return: {}", msg);
+	            	log.debug("api_create_preauthcode return: {}", msg);
 	            	PreAuthCode res = JSONObject.parseObject(msg, PreAuthCode.class);
 	            	if(res.getErrcode() == 0) return res;
 	            	log.error("api_query_auth fail: {} - {}", res.getErrcode(), res.getErrmsg());
@@ -115,7 +108,7 @@ public class WeixinAPI {
 	            .retrieve()
 	            .bodyToMono(String.class)
 	            .map(msg->{
-	            	log.debug("api_component_token return: {}", msg);
+	            	log.debug("api_query_auth return: {}", msg);
 	            	QueryAuthRes res = JSONObject.parseObject(msg, QueryAuthRes.class);
 	            	if(res.getErrcode() == 0) return res.getAuthorization_info();
 	            	log.error("api_query_auth fail: {} - {}", res.getErrcode(), res.getErrmsg());
@@ -150,7 +143,7 @@ public class WeixinAPI {
 	            .retrieve()
 	            .bodyToMono(String.class)
 	            .map(msg->{
-	            	log.debug("api_component_token return: {}", msg);
+	            	log.debug("api_authorizer_token return: {}", msg);
 	            	AuthorizerAccessToken res = JSONObject.parseObject(msg, AuthorizerAccessToken.class);
 	            	if(res.getErrcode() == 0) return res;
 	            	log.error("api_query_auth fail: {} - {}", res.getErrcode(), res.getErrmsg());
