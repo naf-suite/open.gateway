@@ -170,6 +170,8 @@ public class WeixinAPI {
 	    		.fluentPut("msgtype", "text")
 	    		.fluentPut("text", new JSONObject().fluentPut("content", content))
 	    		.toJSONString();
+	    
+	    log.debug("sendCustomMessage request data: {}", req);
 
 	    Mono<String> result = client.post()
 	            .uri("/message/custom/send?access_token=" + token)

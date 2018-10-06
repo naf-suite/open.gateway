@@ -5,7 +5,6 @@ import javax.xml.bind.JAXBException;
 import cloud.weixin.open.gateway.aes.AesException;
 import cloud.weixin.open.gateway.aes.WXBizMsgCrypt;
 import cloud.weixin.open.gateway.data.AuthMsg;
-import cloud.weixin.open.gateway.data.VerifyTicket;
 
 public class XmlTest {
 
@@ -26,8 +25,8 @@ public class XmlTest {
 			pc = new WXBizMsgCrypt(token, key, appId);
 			String text = pc.decrypt(msg.getEncrypt());
 			System.out.println(text);
-			VerifyTicket ticket = VerifyTicket.fromXml(text);
-			System.out.println(ticket.getTicket());
+			AuthMsg authMsg = AuthMsg.fromXml(text);
+			System.out.println(authMsg.getComponentVerifyTicket());
 		} catch (AesException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

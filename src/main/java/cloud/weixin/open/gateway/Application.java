@@ -81,19 +81,20 @@ public class Application {
 	 * @throws JAXBException 
 	 */
 	@PostMapping("/wx570bc396a51b8ff8/app_msg")
-	public @ResponseBody Mono<String> app_msg(@RequestBody String xmlData) throws JAXBException {
+	public @ResponseBody String app_msg(@RequestBody String xmlData) throws JAXBException {
 		log.info("request test app_msg...");
 		String appId = "wx570bc396a51b8ff8";
 		xmlData = service.decryptMsg(xmlData);
 		AppMsg msg = AppMsg.fromXml(xmlData);
 		if("text".equals(msg.getMsgType())) {
 			if("TESTCOMPONENT_MSG_TYPE_TEXT".equalsIgnoreCase(msg.getContent())) {
-				String res = String.format("<xml><ToUserName><![CDATA[%s]]></ToUserName><FromUserName><![CDATA[gh_3c884a361561]]></FromUserName><CreateTime>%d</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[TESTCOMPONENT_MSG_TYPE_TEXT_callback]]></Content></xml>", msg.getFromUserName(), Calendar.getInstance().getTimeInMillis()/1000);
-				return Mono.just(res);
+				String res = String.format("<xml><ToUserName><![CDATA[%s]]></ToUserName><FromUserName><![CDATA[%s]]></FromUserName><CreateTime>%d</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[TESTCOMPONENT_MSG_TYPE_TEXT_callback]]></Content></xml>", msg.getFromUserName(), msg.getToUserName(), Calendar.getInstance().getTimeInMillis()/1000);
+				log.debug("return test app_msg: {}", res);
+				return res;
 			}
 			service.handleTestMsg(appId, msg);
 		}
-		return Mono.just("success");
+		return "success";
 	}
 
 	/**
