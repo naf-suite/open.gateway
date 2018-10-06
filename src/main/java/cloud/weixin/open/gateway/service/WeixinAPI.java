@@ -38,7 +38,7 @@ public class WeixinAPI {
 	    
 	    Mono<ComponentAccessToken> result = client.post()
 	            .uri("/api_component_token")
-	            .contentType(MediaType.APPLICATION_STREAM_JSON)
+	            .contentType(MediaType.APPLICATION_JSON)
 	            .accept(MediaType.APPLICATION_JSON)
 	            .syncBody(req)
 	            .retrieve()
@@ -62,7 +62,7 @@ public class WeixinAPI {
 	 */
 	public Mono<PreAuthCode> preAuthCode(String compId, String token) {
 
-    	log.debug("call preAuthCode, appId: {} token: {}", compId, token);
+    	log.debug("call preAuthCode, compId: {} token: {}", compId, token);
     	
     	WebClient client = WebClient.create("https://api.weixin.qq.com/cgi-bin/component");
 
@@ -71,8 +71,8 @@ public class WeixinAPI {
 	    		.toJSONString();
 	    
 	    Mono<PreAuthCode> result = client.post()
-	            .uri("/api_create_preauthcode?component_access_token={}", token)
-	            .contentType(MediaType.APPLICATION_STREAM_JSON)
+	            .uri("/api_create_preauthcode?component_access_token=" + token)
+	            .contentType(MediaType.APPLICATION_JSON)
 	            .accept(MediaType.APPLICATION_JSON)
 	            .syncBody(req)
 	            .retrieve()
@@ -105,7 +105,7 @@ public class WeixinAPI {
 	    
 	    Mono<Authorization_info> result = client.post()
 	            .uri("/api_query_auth?component_access_token={}", token)
-	            .contentType(MediaType.APPLICATION_STREAM_JSON)
+	            .contentType(MediaType.APPLICATION_JSON)
 	            .accept(MediaType.APPLICATION_JSON)
 	            .syncBody(req)
 	            .retrieve()
@@ -140,7 +140,7 @@ public class WeixinAPI {
 	    
 	    Mono<AuthorizerAccessToken> result = client.post()
 	            .uri("/api_authorizer_token?component_access_token={}", token)
-	            .contentType(MediaType.APPLICATION_STREAM_JSON)
+	            .contentType(MediaType.APPLICATION_JSON)
 	            .accept(MediaType.APPLICATION_JSON)
 	            .syncBody(req)
 	            .retrieve()
