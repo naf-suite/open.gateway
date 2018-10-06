@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <title>页面跳转</title>
+  <meta charset="utf-8"></meta>
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0"></meta>
+  <link rel="stylesheet" type="text/css" href="https://res.wx.qq.com/open/libs/weui/1.1.1/weui.min.css"></link>
+</head>
+
+<body>
+  <div class="weui-msg">
+    <div class="weui-msg__icon-area"><i class="weui-icon-info weui-icon_msg"></i></div>
+    <div class="weui-msg__text-area">
+      <h2 class="weui-msg__title">正在跳转，请稍候...</h2>
+      <p class="weui-msg__desc"></p>
+    </div>
+  </div>
+</body>
+<script type="text/javascript" th:inline="javascript">
+	setTimeout(function(){
+		var url = [[${url}]];
+		window.open(url,'_self');		
+	}, 500);
+</script>
+
+</html>

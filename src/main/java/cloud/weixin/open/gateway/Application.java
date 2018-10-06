@@ -79,7 +79,7 @@ public class Application {
 	 * @throws UnsupportedEncodingException 
 	 */
 	@GetMapping("/{appId}/auth")
-	public Mono<String> auth(@PathVariable(name="appId",required=true) String appId, @RequestHeader("User-Agent") String userAgent) throws UnsupportedEncodingException {
+	public Mono<String> auth(@PathVariable(name="appId",required=true) String appId, @RequestHeader("User-Agent") String userAgent, Model model) throws UnsupportedEncodingException {
 		log.info("request {} auth...", appId);
 		String template = null;
 		if(userAgent.contains("micromessenger")) {
@@ -102,7 +102,8 @@ public class Application {
 						redirect_uri,
 						appId);
 					
-				return "redirect:" + url;
+				model.addAttribute("url", url);
+				return "auth";
 			});
 
 	}
