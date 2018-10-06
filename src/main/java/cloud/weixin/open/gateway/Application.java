@@ -3,6 +3,7 @@ package cloud.weixin.open.gateway;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Calendar;
+import java.util.Map;
 
 import javax.xml.bind.JAXBException;
 
@@ -156,11 +157,11 @@ public class Application {
 	 * 微信接口代理
 	 */
 	@PostMapping("/api.weixin.qq.com/**")
-	public @ResponseBody Mono<String> apiPost(String appId, @RequestBody String postData, ServerHttpRequest request) {
+	public @ResponseBody Mono<String> apiPost(String appid, @RequestBody String postData, ServerHttpRequest request) {
 		String api = request.getPath().subPath(6).value();
-		log.info("request api {} for ...", api, appId);
+		log.info("request api {} for ...", api, appid);
 		log.debug("postData: {}", postData);
-		return this.service.accessToken(appId)
+		return this.service.accessToken(appid)
 		.flatMap(token->{
 			return this.weixin.apiPost(api, token, postData, false);
 		}).onErrorResume(err->{
@@ -173,12 +174,14 @@ public class Application {
 	}
 
 	@GetMapping("/api.weixin.qq.com/**")
-	public @ResponseBody Mono<String> apiGet(String appId, ServerHttpRequest request) {
+	public @ResponseBody Mono<String> apiGet(String appid, ServerHttpRequest request) {
 		String api = request.getPath().subPath(6).value();
-		log.info("request api {} for ...", api, appId);
-		return this.service.accessToken(appId)
+		Map<String, String> query = request.getQueryParams().toSingleValueMap();
+		query.remove("appId");
+		log.info("request api {} for ...", api, appid);
+		return this.service.accessToken(appid)
 		.flatMap(token->{
-			return this.weixin.apiGet(api, token, false);
+			return this.weixin.apiGet(api, token, query, false);
 		}).onErrorResume(err->{
 			String res = new JSONObject()
 			.fluentPut("errcode", -1)

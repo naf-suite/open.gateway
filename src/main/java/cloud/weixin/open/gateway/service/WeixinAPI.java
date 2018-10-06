@@ -2,6 +2,9 @@ package cloud.weixin.open.gateway.service;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.function.BinaryOperator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -225,26 +228,37 @@ public class WeixinAPI {
 	    
 	    return result;
     }
-	public Mono<String> apiGet(String api, String token) {
-		return apiGet(api, token, true);
+	public Mono<String> apiGet(String api, String token, Map<String, String> query) {
+		return apiGet(api, token, query, true);
 	}
-	public Mono<String> apiGet(String api, String token, boolean checkRes) {
+	public Mono<String> apiGet(String api, String token, Map<String, String> query, boolean checkRes) {
 		Assert.hasText(api, "api 不能为空");
 		Assert.hasText(token, "token 不能为空");
     	log.info("api get {}, token: {} ", api, token);
     	
     	WebClient client = WebClient.create("https://api.weixin.qq.com/cgi-bin");
 
-	    String uri;
-	    try {
-			uri = api + "?access_token=" + URLEncoder.encode(token, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			log.warn("URL编码错误", e);
-			uri = api + "?access_token=" + token;
-		}
+    	if(query == null) query = new LinkedHashMap<String,String>();
+    	query.put("access_token", token);
+    	
+	    String queryStr = query.entrySet().stream().map(entry->{
+    		try {
+				return entry.getKey() + "=" + URLEncoder.encode(entry.getValue(), "UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				log.warn("URL编码错误", e);
+				return entry.getKey() + "=" + entry.getValue();
+			}
+    	}).reduce(new BinaryOperator<String>() {
+			
+			@Override
+			public String apply(String a, String b) {
+				// TODO Auto-generated method stub
+				return a + "&" + b;
+			}
+		}).get();
 
 	    Mono<String> result = client.get()
-	            .uri(uri)
+	            .uri(api + "?" + queryStr)
 	            .accept(MediaType.APPLICATION_JSON)
 	            .retrieve()
 	            .bodyToMono(String.class)
