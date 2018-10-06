@@ -61,7 +61,10 @@ public class WeixinAPI {
 	 * @return
 	 */
 	public Mono<PreAuthCode> preAuthCode(String appId, String token) {
-	    WebClient client = WebClient.create("https://api.weixin.qq.com/cgi-bin/component");
+
+    	log.debug("call preAuthCode, appId: {} token: {}", appId, token);
+    	
+    	WebClient client = WebClient.create("https://api.weixin.qq.com/cgi-bin/component");
 
 	    String req = new JSONObject()
 	    		.fluentPut("component_appid", appId)
