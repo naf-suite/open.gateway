@@ -45,8 +45,14 @@ public class WeixinAPI {
 	            .bodyToMono(String.class)
 	            .map(msg->{
 	            	log.debug("api_component_token return: {}", msg);
-	            	ComponentAccessToken res = JSONObject.parseObject(msg, ComponentAccessToken.class);
-	            	log.debug("api_query_auth res: {} - {}", res.getErrcode(), res.getErrmsg());
+	            	ComponentAccessToken res;
+	            	try{
+		            	res = JSONObject.parseObject(msg, ComponentAccessToken.class);
+		            	log.debug("api_query_auth res: {} - {}", res.getErrcode(), res.getErrmsg());
+	            	}catch(Throwable e){
+		            	log.error("api_query_auth parse fail", e);
+		            	throw new BusinessError(BusinessError.ERR_SERVICE_FAULT, "获取第三方平台调用凭据失败");
+	            	}
 	            	if(res.getErrcode() == 0) return res;
 	            	log.error("api_query_auth fail: {} - {}", res.getErrcode(), res.getErrmsg());
 	            	throw new BusinessError(BusinessError.ERR_SERVICE_FAULT, "获取第三方平台调用凭据失败");
