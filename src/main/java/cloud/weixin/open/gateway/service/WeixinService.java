@@ -173,7 +173,7 @@ public class WeixinService {
 		try {
 			xmlData = decryptMsg(xmlData);
 			AppMsg msg = AppMsg.fromXml(xmlData);
-			if("text".equalsIgnoreCase(msg.getMsgType())) {
+			if("text".equals(msg.getMsgType())) {
 				handleTextMsg(appId, msg);
 			} else if ("event".equals(msg.getMsgType())){
 				handleEventMsg(appId, msg);
